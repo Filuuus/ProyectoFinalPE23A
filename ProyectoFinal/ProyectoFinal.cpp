@@ -1,9 +1,11 @@
+//Bibliotecas utilizadas y uso del cout sin std.
 #include <iostream>
+using namespace std;
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <cstdlib> // Para la función std::system()
-
+//Void para realizar la limpieza de la pantalla (Funcion para los distintos sistemas operativos).
 void limpiarPantalla() {
     #ifdef _WIN32
         std::system("cls"); // Para Windows
@@ -12,9 +14,8 @@ void limpiarPantalla() {
     #endif
 }
 
-using namespace std;
 
-// Definición de estructuras
+// Definición de estructuras.
 struct Alumno {
     string nombre;
     int num_cuenta;
@@ -33,13 +34,13 @@ struct Calificacion {
     float calificacion;
 };
 
-
+//En este void se realiza el registro del alumno, pidiendo nombre, cuenta y carrera.
 void registrar_alumno(Alumno alumnos[], int &num_alumnos) {
     cout << "Registro de alumno\n";
     cout << "Ingrese el nombre del alumno: ";
     cin.ignore();
     getline(cin, alumnos[num_alumnos].nombre);
-    
+    //Validacion de la entrada.
     bool validNumCuenta = false;
     while (!validNumCuenta) {
         cout << "Ingrese el número de cuenta del alumno: ";
@@ -58,13 +59,13 @@ void registrar_alumno(Alumno alumnos[], int &num_alumnos) {
     num_alumnos++;
 }
 
-
+//Void para el registro de la materia, pidiendo nombre de la materia, clave y nombre del maestro.
 void registrar_materia(Materia materias[], int &num_materias) {
     cout << "Registro de materia\n";
     cout << "Ingrese el nombre de la materia: ";
     cin.ignore();
     getline(cin, materias[num_materias].nombre);
-
+    //Validacion de la entrada.
     bool validClave = false;
     while (!validClave) {
         cout << "Ingrese la clave de la materia: ";
@@ -82,12 +83,12 @@ void registrar_materia(Materia materias[], int &num_materias) {
     getline(cin, materias[num_materias].maestro);
     num_materias++;
 }
-
+//Void para el registro de las calificaciones.
 void registrar_calificacion(Calificacion calificaciones[], int &num_calificaciones, Materia materias[], int num_materias, Alumno alumnos[], int num_alumnos) {
     int clave_materia, num_cuenta_alumno;
     bool materia_encontrada = false, alumno_encontrado = false;
     float calificacion;
-
+    //Valida que la clave de la materia sea valida.
     cout << "Registro de calificación\n";
     cout << "Ingrese la clave de la materia: ";
     while (!(cin >> clave_materia)) {
@@ -95,58 +96,63 @@ void registrar_calificacion(Calificacion calificaciones[], int &num_calificacion
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
-
+    //Realiza la busqueda de la materia en el registro.
     for (int i = 0; i < num_materias; i++) {
         if (materias[i].clave == clave_materia) {
             materia_encontrada = true;
             break;
         }
     }
-
+    //Informa en caso de no encontrar la materia.
     if (!materia_encontrada) {
         cout << "Materia no encontrada.\n";
         return;
     }
-
+    //Valida que el nombre del alumno sea valido.
     cout << "Ingrese el número de cuenta del alumno: ";
     while (!(cin >> num_cuenta_alumno)) {
         cout << "Entrada inválida. Por favor, ingrese un número entero.\n";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
-
+    //Realiza la busqueda del alumno en el registro.
     for (int i = 0; i < num_alumnos; i++) {
         if (alumnos[i].num_cuenta == num_cuenta_alumno) {
             alumno_encontrado = true;
             break;
         }
     }
-
+    //Informa en caso de no encontrar el nombre del alumno. 
     if (!alumno_encontrado) {
         cout << "Alumno no encontrado.\n";
         return;
     }
-
+    //Realiza la validacion de la calificacion ingresada.
     cout << "Ingrese la calificación: ";
     while (!(cin >> calificacion)) {
         cout << "Entrada inválida. Por favor, ingrese un número válido.\n";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
-
+    //Asigna la calificacion y realiza el movimiento en la lista.
     calificaciones[num_calificaciones].clave_materia = clave_materia;
     calificaciones[num_calificaciones].num_cuenta_alumno = num_cuenta_alumno;
     calificaciones[num_calificaciones].calificacion = calificacion;
     num_calificaciones++;
 }
 
-// Funciones para editar datos
+// Funciones para editar datos del alumno
 void editar_alumno(Alumno alumnos[], int num_alumnos) {
     int num_cuenta;
     cout << "Edición de alumno\n";
+    EA:
     cout << "Ingrese el número de cuenta del alumno a editar: ";
-    cin >> num_cuenta;
-
+    if(float(scanf("%d",& num_cuenta)) !=1){
+            cout <<"Solo utiliza numeros para poder continuar. :'(" <<endl;
+            system("pause");
+            fflush(stdin);
+            goto EA;}
+    //Realiza la busqueda del alumno y verifica si fue encontrado o no.
     int indice = -1;
     for (int i = 0; i < num_alumnos; i++) {
         if (alumnos[i].num_cuenta == num_cuenta) {
@@ -154,12 +160,12 @@ void editar_alumno(Alumno alumnos[], int num_alumnos) {
             break;
         }
     }
-
+    //Informa si el alummno no es encontrado.
     if (indice == -1) {
         cout << "Alumno no encontrado.\n";
         return;
     }
-
+    //Pide ingresar los nuevos datos al finalizar señala que los datos se actualizaron con exito.
     cout << "Ingrese el nuevo nombre del alumno: ";
     cin.ignore();
     getline(cin, alumnos[indice].nombre);
@@ -169,13 +175,18 @@ void editar_alumno(Alumno alumnos[], int num_alumnos) {
 
     cout << "Alumno actualizado con éxito.\n";
 }
-
+//Funcion para editar datos de materia.
 void editar_materia(Materia materias[], int num_materias) {
     int clave;
     cout << "Edición de materia\n";
+    EM:
     cout << "Ingrese la clave de la materia a editar: ";
-    cin >> clave;
-
+    if(float(scanf("%d",& clave)) !=1){
+            cout <<"Solo utiliza numeros para poder continuar. :'(" <<endl;
+            system("pause");
+            fflush(stdin);
+            goto EM;}
+    //Realiza la busqueda de la materia y verifica si fue encontrada.
     int indice = -1;
     for (int i = 0; i < num_materias; i++) {
         if (materias[i].clave == clave) {
@@ -183,12 +194,12 @@ void editar_materia(Materia materias[], int num_materias) {
             break;
         }
     }
-
+    //Informa en caso de no encontrar la materia.
     if (indice == -1) {
         cout << "Materia no encontrada.\n";
         return;
     }
-
+    //Pide ingresar los nuevos datos y señala que los datos se actializaron con exito.
     cout << "Ingrese el nuevo nombre de la materia: ";
     cin.ignore();
     getline(cin, materias[indice].nombre);
@@ -198,43 +209,65 @@ void editar_materia(Materia materias[], int num_materias) {
 
     cout << "Materia actualizada con éxito.\n";
 }
-
+//Funcion para la edicion de calificaciones.
 void editar_calificacion(Calificacion calificaciones[], int num_calificaciones) {
     int indice = -1;
     int clave_materia, num_cuenta_alumno;
     cout << "Edición de calificación\n";
+    ECM:
     cout << "Ingrese la clave de la materia: ";
-    cin >> clave_materia;
+    if(float(scanf("%d",& clave_materia)) !=1){
+            cout <<"Solo utiliza numeros para poder continuar. :'(" <<endl;
+            system("pause");
+            fflush(stdin);
+            goto ECM;}
+        ECA:
     cout << "Ingrese el número de cuenta del alumno: ";
-    cin >> num_cuenta_alumno;
-
+    if(float(scanf("%d",& num_cuenta_alumno)) !=1){
+            cout <<"Solo utiliza numeros para poder continuar. :'(" <<endl;
+            system("pause");
+            fflush(stdin);
+            goto ECA;}
+    //Realiza la busqueda de la calificacion por materia y alumno, despues verifica si fue encontrada.
     for (int i = 0; i < num_calificaciones; i++) {
         if (calificaciones[i].clave_materia == clave_materia && calificaciones[i].num_cuenta_alumno == num_cuenta_alumno) {
             indice = i;
             break;
         }
     }
-
+    //Informa en caso de no esncontrar la calificacion.
     if (indice == -1) {
         cout << "Calificación no encontrada.\n";
         return;
     }
-
+    //Pide ingresar la nueva calificacion y señala que fue actualizada con exito.
     float nueva_calificacion;
+    NC:
     cout << "Ingrese la nueva calificación: ";
-    cin >> nueva_calificacion;
+    if(float(scanf("%d",& nueva_calificacion)) !=1){
+            cout <<"Solo utiliza numeros para poder continuar. :'(" <<endl;
+            system("pause");
+            fflush(stdin);
+            goto NC;}
     calificaciones[indice].calificacion = nueva_calificacion;
 
     cout << "Calificación actualizada con éxito.\n";
 }
 
-// Funciones para registro, edición y eliminación de datos (continuación)
+// Funcion para la eliminacion de alumnos. 
 void eliminar_alumno(Alumno alumnos[], int& num_alumnos) {
     int num_cuenta;
     bool encontrado = false;
+    //Pide ingresar el numero de cuenta y realiza la busqueda.
     cout << "Eliminación de datos de alumno\n";
+    CAE:
     cout << "Ingrese el número de cuenta del alumno a eliminar: ";
-    cin >> num_cuenta;
+    if(float(scanf("%d",& num_cuenta)) !=1){
+            cout <<"Solo utiliza numeros para poder continuar. :'(" <<endl;
+            system("pause");
+            fflush(stdin);
+            goto CAE;}
+    //Si encuentra el alumno, elimina su informacion y realiza el movimineto en el registro.
     for (int i = 0; i < num_alumnos; i++) {
         if (alumnos[i].num_cuenta == num_cuenta) {
             encontrado = true;
@@ -244,20 +277,27 @@ void eliminar_alumno(Alumno alumnos[], int& num_alumnos) {
             num_alumnos--;
             break;
         }
-    }
+    }//Informa si el alumno se elimino correctamente o si el alumno no fue encontrado.
     if (encontrado) {
         cout << "Alumno eliminado correctamente.\n";
     } else {
         cout << "Alumno no encontrado.\n";
     }
 }
-
+//Funcion para la eliminacion de materias.
 void eliminar_materia(Materia materias[], int& num_materias) {
     int clave;
     bool encontrado = false;
+    //Pide ingresar la clave de la materia y realiza la busqueda.
     cout << "Eliminación de datos de materia\n";
+    CME:
     cout << "Ingrese la clave de la materia a eliminar: ";
-    cin >> clave;
+    if(float(scanf("%d",& clave)) !=1){
+            cout <<"Solo utiliza numeros para poder continuar. :'(" <<endl;
+            system("pause");
+            fflush(stdin);
+            goto CME;}
+    //Si encintra la materia la elimina y realiza el movimiento en el registro.
     for (int i = 0; i < num_materias; i++) {
         if (materias[i].clave == clave) {
             encontrado = true;
@@ -267,7 +307,7 @@ void eliminar_materia(Materia materias[], int& num_materias) {
             num_materias--;
             break;
         }
-    }
+    }//Informa si la materia se elimino con exito o si no fue encontrada.
     if (encontrado) {
         cout << "Materia eliminada correctamente.\n";
     } else {
@@ -275,35 +315,46 @@ void eliminar_materia(Materia materias[], int& num_materias) {
     }
 }
 
-// Funciones para registro, edición y eliminación de datos (continuación)
+// Funcion para la eliminacion de calificaciones.
 void eliminar_calificacion(Calificacion calificaciones[], int& num_calificaciones, Materia materias[], int num_materias, Alumno alumnos[], int num_alumnos) {
     int clave_materia, num_cuenta_alumno;
     bool materia_encontrada = false, alumno_encontrado = false, encontrado = false;
+    //Pide la clave de la materia y realiza la busqueda.
     cout << "Eliminación de calificación\n";
+    ECMM:
     cout << "Ingrese la clave de la materia: ";
-    cin >> clave_materia;
+    if(float(scanf("%d",& clave_materia)) !=1){
+            cout <<"Solo utiliza numeros para poder continuar. :'(" <<endl;
+            system("pause");
+            fflush(stdin);
+            goto ECMM;}
     for (int i = 0; i < num_materias; i++) {
         if (materias[i].clave == clave_materia) {
             materia_encontrada = true;
             break;
         }
-    }
+    }//Informa en caso de no encontrar la materia.
     if (!materia_encontrada) {
         cout << "Materia no encontrada.\n";
         return;
-    }
+    }//Pide el numero de cuenta del alumno.
+    ECAM:
     cout << "Ingrese el número de cuenta del alumno: ";
-    cin >> num_cuenta_alumno;
+    if(float(scanf("%d",& num_cuenta_alumno)) !=1){
+            cout <<"Solo utiliza numeros para poder continuar. :'(" <<endl;
+            system("pause");
+            fflush(stdin);
+            goto ECAM;}
     for (int i = 0; i < num_alumnos; i++) {
         if (alumnos[i].num_cuenta == num_cuenta_alumno) {
             alumno_encontrado = true;
             break;
         }
-    }
+    }//Informa en caso de no encontrar el alumno.
     if (!alumno_encontrado) {
         cout << "Alumno no encontrado.\n";
         return;
-    }
+    }//Elimina la calificacion y realiza el movimiento en el registro.
     for (int i = 0; i < num_calificaciones; i++) {
         if (calificaciones[i].clave_materia == clave_materia && calificaciones[i].num_cuenta_alumno == num_cuenta_alumno) {
             encontrado = true;
@@ -313,7 +364,7 @@ void eliminar_calificacion(Calificacion calificaciones[], int& num_calificacione
             num_calificaciones--;
             break;
         }
-    }
+    }//Informa si la calificacion se elimino correctamente o si no fue encontrada.
     if (encontrado) {
         cout << "Calificación eliminada correctamente.\n";
     } else {
@@ -321,7 +372,7 @@ void eliminar_calificacion(Calificacion calificaciones[], int& num_calificacione
     }
 }
 
-// Funciones para cálculo de promedio y evaluación de calificaciones
+// Funcion para cálculo de promedio.
 float calcular_promedio(Calificacion calificaciones[], int num_calificaciones, int num_cuenta_alumno) {
     float sumatoria = 0;
     int num_calificaciones_alumno = 0;
@@ -336,7 +387,7 @@ float calcular_promedio(Calificacion calificaciones[], int num_calificaciones, i
     }
     return sumatoria / num_calificaciones_alumno;
 }
-
+//evaluación de calificaciones segun promedio.
 void evaluar_calificaciones(Calificacion calificaciones[], int num_calificaciones, Alumno alumnos[], int num_alumnos) {
     cout << "Evaluación de calificaciones\n";
     for (int i = 0; i < num_alumnos; i++) {
@@ -346,7 +397,6 @@ void evaluar_calificaciones(Calificacion calificaciones[], int num_calificacione
             cout << "lo que equivale a una calificación de Reprobado.\n";
         } else if (promedio < 80) {
             cout << "Lo que equivale a una calificación de Bien.\n";
-// Funciones para cálculo de promedio y evaluación de calificaciones (continuación)
         } else if (promedio < 90) {
             cout << "lo que equivale a una calificación de Muy bien.\n";
         } else {
@@ -354,7 +404,7 @@ void evaluar_calificaciones(Calificacion calificaciones[], int num_calificacione
         }
     }
 }
-
+//Funcion para guardar los datos en el archivo TXT.
 void guardar_datos(string archivo, Alumno alumnos[], int num_alumnos, Materia materias[], int num_materias, Calificacion calificaciones[], int num_calificaciones)
 {
     ofstream file(archivo);
@@ -379,15 +429,15 @@ void guardar_datos(string archivo, Alumno alumnos[], int num_alumnos, Materia ma
     {
         file << calificaciones[i].num_cuenta_alumno << "," << calificaciones[i].clave_materia << "," << calificaciones[i].calificacion << "\n";
     }
-
+    //Cierra el archivo.
     file.close();
-
+    //Informa en donde fueron guardados los archivos.
     cout << "Datos guardados en " << archivo << "\n";
 }
-
+//Funcion para cargar los datos desde el archivo TXT.
 void cargar_datos(string archivo, Alumno alumnos[], int& num_alumnos, Materia materias[], int& num_materias, Calificacion calificaciones[], int& num_calificaciones) {
     ifstream file(archivo);
-
+    //Señala si hay algun error al abrir el archivo.
     if (!file.is_open()) {
         cout << "Error al abrir archivo " << archivo << "\n";
         return;
@@ -395,7 +445,7 @@ void cargar_datos(string archivo, Alumno alumnos[], int& num_alumnos, Materia ma
 
     string linea;
     string seccion;
-
+    //Obtiene los datos y los ordena en su respectivo luagar.
     while (getline(file, linea)) {
         if (linea == "ALUMNOS") {
             seccion = "ALUMNOS";
@@ -452,9 +502,9 @@ void cargar_datos(string archivo, Alumno alumnos[], int& num_alumnos, Materia ma
             }
         }
     }
-
+    //Cierra el archivo
     file.close();
-
+    //Informa desde donde se cargaron los archivos.
     cout << "Datos cargados desde " << archivo << "\n";
 }
 
@@ -471,7 +521,7 @@ int main() {
     int num_calificaciones = 0;
     int opcion;
 
-
+    //LLama a la funcion para cargar los datos.
     string archivo = "datos.txt";
     cargar_datos("datos.txt", alumnos, num_alumnos, materias, num_materias, calificaciones, num_calificaciones);
 
