@@ -2,7 +2,15 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <cstdlib> // Para la función std::system()
 
+void limpiarPantalla() {
+    #ifdef _WIN32
+        std::system("cls"); // Para Windows
+    #else
+        std::system("clear"); // Para Linux y macOS
+    #endif
+}
 
 using namespace std;
 
@@ -25,26 +33,53 @@ struct Calificacion {
     float calificacion;
 };
 
-// Funciones para registro, edición y eliminación de datos
+
 void registrar_alumno(Alumno alumnos[], int &num_alumnos) {
     cout << "Registro de alumno\n";
     cout << "Ingrese el nombre del alumno: ";
-    cin >> alumnos[num_alumnos].nombre;
-    cout << "Ingrese el número de cuenta del alumno: ";
-    cin >> alumnos[num_alumnos].num_cuenta;
+    cin.ignore();
+    getline(cin, alumnos[num_alumnos].nombre);
+    
+    bool validNumCuenta = false;
+    while (!validNumCuenta) {
+        cout << "Ingrese el número de cuenta del alumno: ";
+        if (cin >> alumnos[num_alumnos].num_cuenta) {
+            validNumCuenta = true;
+        } else {
+            cout << "Entrada inválida. Por favor, ingrese un número de cuenta válido.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+    }
+    
     cout << "Ingrese la carrera del alumno: ";
-    cin >> alumnos[num_alumnos].carrera;
+    cin.ignore();
+    getline(cin, alumnos[num_alumnos].carrera);
     num_alumnos++;
 }
+
 
 void registrar_materia(Materia materias[], int &num_materias) {
     cout << "Registro de materia\n";
     cout << "Ingrese el nombre de la materia: ";
-    cin >> materias[num_materias].nombre;
-    cout << "Ingrese la clave de la materia: ";
-    cin >> materias[num_materias].clave;
+    cin.ignore();
+    getline(cin, materias[num_materias].nombre);
+
+    bool validClave = false;
+    while (!validClave) {
+        cout << "Ingrese la clave de la materia: ";
+        if (cin >> materias[num_materias].clave) {
+            validClave = true;
+        } else {
+            cout << "Entrada inválida. Por favor, ingrese una clave válida.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+    }
+
     cout << "Ingrese el nombre del maestro: ";
-    cin >> materias[num_materias].maestro;
+    cin.ignore();
+    getline(cin, materias[num_materias].maestro);
     num_materias++;
 }
 
@@ -52,121 +87,145 @@ void registrar_calificacion(Calificacion calificaciones[], int &num_calificacion
     int clave_materia, num_cuenta_alumno;
     bool materia_encontrada = false, alumno_encontrado = false;
     float calificacion;
+
     cout << "Registro de calificación\n";
     cout << "Ingrese la clave de la materia: ";
-    cin >> clave_materia;
+    while (!(cin >> clave_materia)) {
+        cout << "Entrada inválida. Por favor, ingrese un número entero.\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
     for (int i = 0; i < num_materias; i++) {
         if (materias[i].clave == clave_materia) {
             materia_encontrada = true;
             break;
         }
     }
+
     if (!materia_encontrada) {
         cout << "Materia no encontrada.\n";
         return;
     }
+
     cout << "Ingrese el número de cuenta del alumno: ";
-    cin >> num_cuenta_alumno;
+    while (!(cin >> num_cuenta_alumno)) {
+        cout << "Entrada inválida. Por favor, ingrese un número entero.\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
     for (int i = 0; i < num_alumnos; i++) {
         if (alumnos[i].num_cuenta == num_cuenta_alumno) {
             alumno_encontrado = true;
             break;
         }
     }
+
     if (!alumno_encontrado) {
         cout << "Alumno no encontrado.\n";
         return;
     }
+
     cout << "Ingrese la calificación: ";
-    cin >> calificacion;
+    while (!(cin >> calificacion)) {
+        cout << "Entrada inválida. Por favor, ingrese un número válido.\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
     calificaciones[num_calificaciones].clave_materia = clave_materia;
     calificaciones[num_calificaciones].num_cuenta_alumno = num_cuenta_alumno;
     calificaciones[num_calificaciones].calificacion = calificacion;
     num_calificaciones++;
 }
 
-// Funciones para registro, edición y eliminación de datos (continuación)
+// Funciones para editar datos
 void editar_alumno(Alumno alumnos[], int num_alumnos) {
     int num_cuenta;
-    bool encontrado = false;
-    cout << "Edición de datos de alumno\n";
+    cout << "Edición de alumno\n";
     cout << "Ingrese el número de cuenta del alumno a editar: ";
     cin >> num_cuenta;
+
+    int indice = -1;
     for (int i = 0; i < num_alumnos; i++) {
         if (alumnos[i].num_cuenta == num_cuenta) {
-            encontrado = true;
-            cout << "Ingrese el nuevo nombre del alumno: ";
-            cin >> alumnos[i].nombre;
-            cout << "Ingrese la nueva carrera del alumno: ";
-            cin >> alumnos[i].carrera;
+            indice = i;
             break;
         }
     }
-    if (!encontrado) {
+
+    if (indice == -1) {
         cout << "Alumno no encontrado.\n";
+        return;
     }
+
+    cout << "Ingrese el nuevo nombre del alumno: ";
+    cin.ignore();
+    getline(cin, alumnos[indice].nombre);
+    cout << "Ingrese la nueva carrera del alumno: ";
+    cin.ignore();
+    getline(cin, alumnos[indice].carrera);
+
+    cout << "Alumno actualizado con éxito.\n";
 }
 
 void editar_materia(Materia materias[], int num_materias) {
     int clave;
-    bool encontrado = false;
-    cout << "Edición de datos de materia\n";
+    cout << "Edición de materia\n";
     cout << "Ingrese la clave de la materia a editar: ";
     cin >> clave;
+
+    int indice = -1;
     for (int i = 0; i < num_materias; i++) {
         if (materias[i].clave == clave) {
-            encontrado = true;
-            cout << "Ingrese el nuevo nombre de la materia: ";
-            cin >> materias[i].nombre;
-            cout << "Ingrese el nuevo nombre del maestro: ";
-            cin >> materias[i].maestro;
+            indice = i;
             break;
         }
     }
-    if (!encontrado) {
+
+    if (indice == -1) {
         cout << "Materia no encontrada.\n";
+        return;
     }
+
+    cout << "Ingrese el nuevo nombre de la materia: ";
+    cin.ignore();
+    getline(cin, materias[indice].nombre);
+    cout << "Ingrese el nuevo nombre del maestro: ";
+    cin.ignore();
+    getline(cin, materias[indice].maestro);
+
+    cout << "Materia actualizada con éxito.\n";
 }
 
-void editar_calificacion(Calificacion calificaciones[], int num_calificaciones, Materia materias[], int num_materias, Alumno alumnos[], int num_alumnos) {
+void editar_calificacion(Calificacion calificaciones[], int num_calificaciones) {
+    int indice = -1;
     int clave_materia, num_cuenta_alumno;
-    bool materia_encontrada = false, alumno_encontrado = false, encontrado = false;
     cout << "Edición de calificación\n";
     cout << "Ingrese la clave de la materia: ";
     cin >> clave_materia;
-    for (int i = 0; i < num_materias; i++) {
-        if (materias[i].clave == clave_materia) {
-            materia_encontrada = true;
-            break;
-        }
-    }
-    if (!materia_encontrada) {
-        cout << "Materia no encontrada.\n";
-        return;
-    }
     cout << "Ingrese el número de cuenta del alumno: ";
     cin >> num_cuenta_alumno;
-    for (int i = 0; i < num_alumnos; i++) {
-        if (alumnos[i].num_cuenta == num_cuenta_alumno) {
-            alumno_encontrado = true;
-            break;
-        }
-    }
-    if (!alumno_encontrado) {
-        cout << "Alumno no encontrado.\n";
-        return;
-    }
+
     for (int i = 0; i < num_calificaciones; i++) {
         if (calificaciones[i].clave_materia == clave_materia && calificaciones[i].num_cuenta_alumno == num_cuenta_alumno) {
-            encontrado = true;
-            cout << "Ingrese la nueva calificación: ";
-            cin >> calificaciones[i].calificacion;
+            indice = i;
             break;
         }
     }
-    if (!encontrado) {
+
+    if (indice == -1) {
         cout << "Calificación no encontrada.\n";
+        return;
     }
+
+    float nueva_calificacion;
+    cout << "Ingrese la nueva calificación: ";
+    cin >> nueva_calificacion;
+    calificaciones[indice].calificacion = nueva_calificacion;
+
+    cout << "Calificación actualizada con éxito.\n";
 }
 
 // Funciones para registro, edición y eliminación de datos (continuación)
@@ -326,63 +385,6 @@ void guardar_datos(string archivo, Alumno alumnos[], int num_alumnos, Materia ma
     cout << "Datos guardados en " << archivo << "\n";
 }
 
-// void cargar_datos(string archivo, Alumno alumnos[], int& num_alumnos, Materia materias[], int& num_materias, Calificacion calificaciones[], int& num_calificaciones) {
-//     ifstream file(archivo);
-
-//     if (!file.is_open()) {
-//         cout << "Error al abrir archivo " << archivo << "\n";
-//         return;
-//     }
-
-//     string linea;
-
-//     while (getline(file, linea)) {
-//         if (linea == "ALUMNOS") {
-//             while (getline(file, linea) && linea != "MATERIAS") {
-//                 stringstream ss(linea);
-//                 string matricula, nombre, carrera;
-
-//                 getline(ss, matricula, ',');
-//                 getline(ss, nombre, ',');
-//                 getline(ss, carrera, ',');
-
-//                 // Crear nuevo alumno y agregarlo al arreglo
-//                 alumnos[num_alumnos] = Alumno(num_cuenta, nombre, carrera);
-//                 num_alumnos++;
-//             }
-//         } else if (linea == "MATERIAS") {
-//             while (getline(file, linea) && linea != "MAESTROS") {
-//                 stringstream ss(linea);
-//                 string clave, nombre, maestro;
-
-//                 getline(ss, clave, ',');
-//                 getline(ss, nombre, ',');
-//                 getline(ss, maestro, ',');
-
-//                 // Crear nueva materia y agregarla al arreglo
-//                 materias[num_materias] = Materia(clave, nombre, maestro);
-//                 num_materias++;
-//             }
-//         } else if (linea == "CALIFICACIONES") {
-//             while (getline(file, linea)) {
-//                 stringstream ss(linea);
-//                 string matricula, clave_materia, calificacion;
-
-//                 getline(ss, matricula, ',');
-//                 getline(ss, clave_materia, ',');
-//                 getline(ss, calificacion, ',');
-
-//                 // Crear nueva calificación y agregarla al arreglo
-//                 calificaciones[num_calificaciones] = Calificacion(matricula, clave_materia, stoi(calificacion));
-//                 num_calificaciones++;
-//             }
-//         }
-//     }
-
-//     cout << "Datos cargados exitosamente desde el archivo: " << archivo << "\n";
-//     file.close();
-// }
-
 void cargar_datos(string archivo, Alumno alumnos[], int& num_alumnos, Materia materias[], int& num_materias, Calificacion calificaciones[], int& num_calificaciones) {
     ifstream file(archivo);
 
@@ -456,10 +458,6 @@ void cargar_datos(string archivo, Alumno alumnos[], int& num_alumnos, Materia ma
     cout << "Datos cargados desde " << archivo << "\n";
 }
 
-
-
-
-// Función principal
 int main() {
     // Declaración de variables
     const int MAX_ALUMNOS = 100;
@@ -493,45 +491,68 @@ int main() {
         cout << "10. Salir\n";
         cout << "Ingrese una opción: ";
         cin >> opcion;
+
+        // Validar el tipo de entrada para la opción
+        if (cin.fail()) {
+            cout << "Error: entrada inválida. Por favor, ingrese un número.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue;
+        }
         switch (opcion) {
             case 1:
+                limpiarPantalla();
                 registrar_alumno(alumnos, num_alumnos);
                 break;
             case 2:
+                limpiarPantalla();
                 registrar_materia(materias, num_materias);
                 break;
             case 3:
+                limpiarPantalla();
                 registrar_calificacion(calificaciones, num_calificaciones, materias, num_materias, alumnos, num_alumnos);
                 break;
             case 4:
+                limpiarPantalla();
                 editar_alumno(alumnos, num_alumnos);
                 break;
             case 5:
+                limpiarPantalla();
                 editar_materia(materias, num_materias);
                 break;
             case 6:
-                editar_calificacion(calificaciones, num_calificaciones, materias, num_materias, alumnos, num_alumnos);
+                limpiarPantalla();
+                editar_calificacion(calificaciones, num_calificaciones);
                 break;
             case 7:
+                limpiarPantalla();
                 eliminar_alumno(alumnos, num_alumnos);
                 break;
             case 8:
+                limpiarPantalla();
                 eliminar_materia(materias, num_materias);
                 break;
             case 9:
+                limpiarPantalla();
                 eliminar_calificacion(calificaciones, num_calificaciones, materias, num_materias, alumnos, num_alumnos);
                 break;
             case 0:
+                limpiarPantalla();
                 evaluar_calificaciones(calificaciones, num_calificaciones, alumnos, num_alumnos);
                 break;
             case 10:
+                limpiarPantalla();
             guardar_datos(archivo, alumnos, num_alumnos, materias, num_materias, calificaciones, num_calificaciones);
                 cout << "¡Hasta luego!\n";
                 break;
             default:
+                limpiarPantalla();
                 cout << "Opción inválida. Intente de nuevo.\n";
                 break;
         }
+                // Limpiar el buffer de entrada
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     } while (opcion != 10);
 
     return 0;

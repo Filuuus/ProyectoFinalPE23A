@@ -1,6 +1,11 @@
 ALUMNOS
 218577321,Frida,Psicologia
+218577283,Juan martin,Ingeniería en Computación
 MATERIAS
-21345,Historia,Carlos
+13,Historia,Carlos
+87,Cálculo diferencial e integral,Ernesto Urenda Cázares
+11,Programación estructurada,Profesor X
 CALIFICACIONES
-218577321,21345,98
+218577321,13,98
+218577283,87,100
+218577283,11,100
